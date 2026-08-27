@@ -1,0 +1,9 @@
+{
+  "slug": "comprehensible-input-log",
+  "title": "Comprehensible Input Log",
+  "artifact_class": "pwa-offline",
+  "user": "A language self-learner using books, podcasts, and videos who needs to choose material near their level and see whether input is becoming understandable without a gamified course.",
+  "smallest_useful_product": "An offline log where users save a source, duration/pages, self-rate understanding, record up to three recurring unknown words, and get a trend view plus a simple next-source target.",
+  "constraints": "Self-ratings are subjective and must not be presented as proficiency scores; no copyrighted media is uploaded; local export/import is required.",
+  "monetization": "free"
+}

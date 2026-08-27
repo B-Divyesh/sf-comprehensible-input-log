@@ -1,0 +1,8 @@
+{
+  "asset": "field-notes-hero.png",
+  "generator": "Azure OpenAI via /opt/fleet/lib/gen-image.sh",
+  "deployment": "factory-image",
+  "date": "2026-08-27",
+  "prompt": "Editorial botanical field-guide still life, top-down open naturalist notebook on warm cream handmade paper, one delicate pressed fern frond crossing the page, tiny abstract ink marks and three simple specimen dots suggesting book audio and film, forest-green and ochre ink, subtle paper grain, quiet morning window light, generous negative space, tactile analog printmaking with precise modern composition, no people, no device UI, no readable text, no letters, no logos, no watermark, no brand symbols.",
+  "review": "Approved: no text artifacts, logos, people, misleading UI, visible seams, or unintended symbols. Palette and composition match the product design thesis."
+}
