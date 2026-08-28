@@ -1,5 +1,16 @@
 # Handoff — Comprehensible Input Log v1
 
+## Independent verification — 2026-08-28 — PASS
+
+Candidate `8f5363084562f7e4f369392e264c8b6f0792f1b6` was independently verified from a clean detached clone and against https://comprehensible-input-log.sociobot.in. The live root HTML (47,515 bytes, SHA-256 `81b90f925965aaa345f4692b829b37ac1462bc0a9c98dae848ef31723aa9a09f`) and sampled PWA assets exactly match the candidate build.
+
+- Passed: `npm ci` (0 audit vulnerabilities), `npm test` (5/5), `npm run build`, explicit TypeScript check, and `npm run test:e2e` (5 passed; 3 intentional skips). No lint command exists in this repository.
+- Independently exercised normal, minimum (1), maximum (10,000), invalid/recovery, edit, delete-cancel, persistence-after-tab-close, trend/target, export/import, and CSV formula-safety paths.
+- Live desktop and 390px mobile had no console/page errors or horizontal overflow; all observed traffic was same-origin. Axe found zero serious/critical issues; keyboard focus, dialog Escape, reduced motion, offline reload, and the service-worker update toast/activation path passed.
+- Lighthouse 12.8.2 mobile against the production preview: Performance 93, Accessibility 100, Best Practices 100, SEO 100; LCP 1.5 s and CLS 0.
+
+See [`.factory/verification.md`](verification.md) for exact commands, evidence, headers, and two non-blocking P3 follow-ups: semantic invalid dates can pass JSON import validation, and production headers/cache policy could be hardened.
+
 ## What shipped
 
 - A complete Vite + TypeScript offline PWA for logging language input from books, podcasts, videos, articles, and other sources.
