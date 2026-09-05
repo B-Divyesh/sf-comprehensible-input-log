@@ -1,7 +1,10 @@
 {
   "communities": {
     "0": [
+      "src_demo_freshdemoentries",
       "src_main",
+      "src_main_currentroute",
+      "src_main_demobanner",
       "src_main_dialogs",
       "src_main_entries",
       "src_main_entrycard",
@@ -9,41 +12,37 @@
       "src_main_formdialog",
       "src_main_gettingstarted",
       "src_main_icons",
+      "src_main_isdemo",
       "src_main_journalpage",
       "src_main_legalpage",
+      "src_main_loadentriesforroute",
+      "src_main_navigate",
+      "src_main_notfoundpage",
       "src_main_recurringwords",
       "src_main_render",
+      "src_main_resetdemo",
+      "src_main_route",
+      "src_main_routedetails",
       "src_main_shell",
       "src_main_showofflinestate",
       "src_main_showupdatetoast",
       "src_main_start",
       "src_main_trendchart",
-      "src_main_trendspage"
+      "src_main_trendspage",
+      "src_main_updatedocumentmeta",
+      "src_storage_setstoragenamespace"
     ],
     "1": [
-      "src_main_announce",
-      "src_main_bindevents",
-      "src_main_closedialog",
-      "src_main_confirmdelete",
-      "src_main_confirmimport",
-      "src_main_exportdata",
-      "src_main_handleimportfile",
-      "src_main_handlesubmit",
-      "src_main_opendelete",
-      "src_main_openform",
-      "src_storage",
-      "src_storage_deleteentry",
-      "src_storage_getentries",
-      "src_storage_opendb",
-      "src_storage_replaceentries",
-      "src_storage_saveentry",
-      "src_storage_validateimport"
-    ],
-    "2": [
       "ref_dom",
       "ref_dom_iterable",
       "ref_es2022",
+      "ref_src",
+      "ref_tests_e2e",
+      "ref_tests_metrics_test_ts",
+      "ref_vite_config_ts",
+      "ref_vitest_config_ts",
       "ref_webworker",
+      "tsconfig",
       "tsconfig_compileroptions",
       "tsconfig_compileroptions_allowimportingtsextensions",
       "tsconfig_compileroptions_isolatedmodules",
@@ -55,24 +54,34 @@
       "tsconfig_compileroptions_skiplibcheck",
       "tsconfig_compileroptions_strict",
       "tsconfig_compileroptions_target",
-      "tsconfig_compileroptions_usedefineforclassfields"
+      "tsconfig_compileroptions_usedefineforclassfields",
+      "tsconfig_exclude",
+      "tsconfig_include"
+    ],
+    "2": [
+      "src_main_announce",
+      "src_main_bindevents",
+      "src_main_closedialog",
+      "src_main_confirmdelete",
+      "src_main_confirmimport",
+      "src_main_exportdata",
+      "src_main_handleimportfile",
+      "src_main_handlesubmit",
+      "src_main_opendelete",
+      "src_main_openform",
+      "src_storage",
+      "src_storage_currentstoragenamespace",
+      "src_storage_deleteentry",
+      "src_storage_getentries",
+      "src_storage_isvalidentrydate",
+      "src_storage_opendb",
+      "src_storage_replaceentries",
+      "src_storage_saveentry",
+      "src_storage_validateimport"
     ],
     "3": [
-      "axe_core_playwright",
-      "package_devdependencies",
-      "package_devdependencies_axe_core_playwright",
-      "package_devdependencies_playwright_test",
-      "package_devdependencies_typescript",
-      "package_devdependencies_vite",
-      "package_devdependencies_vite_plugin_singlefile",
-      "package_devdependencies_vitest",
-      "playwright_test",
-      "typescript",
-      "vite",
-      "vite_plugin_singlefile",
-      "vitest"
-    ],
-    "4": [
+      "src_demo",
+      "src_demo_demo_entries",
       "src_metrics",
       "src_metrics_average",
       "src_metrics_levellabel",
@@ -86,6 +95,21 @@
       "src_types_sourcetype",
       "tests_metrics_test",
       "tests_metrics_test_makeentry"
+    ],
+    "4": [
+      "axe_core_playwright",
+      "package_devdependencies",
+      "package_devdependencies_axe_core_playwright",
+      "package_devdependencies_playwright_test",
+      "package_devdependencies_typescript",
+      "package_devdependencies_vite",
+      "package_devdependencies_vite_plugin_singlefile",
+      "package_devdependencies_vitest",
+      "playwright_test",
+      "typescript",
+      "vite",
+      "vite_plugin_singlefile",
+      "vitest"
     ],
     "5": [
       "package",
@@ -101,14 +125,11 @@
       "package_version"
     ],
     "6": [
-      "ref_src",
-      "ref_tests_e2e",
-      "ref_tests_metrics_test_ts",
-      "ref_vite_config_ts",
-      "ref_vitest_config_ts",
-      "tsconfig",
-      "tsconfig_exclude",
-      "tsconfig_include"
+      "test",
+      "tests_e2e_app_spec",
+      "tests_e2e_app_spec_opendemo",
+      "tests_e2e_app_spec_showtrends",
+      "tests_e2e_app_spec_today"
     ],
     "7": [
       "public_sw",
@@ -118,84 +139,102 @@
       "playwright_config"
     ],
     "9": [
-      "tests_e2e_app_spec"
-    ],
-    "10": [
       "vite_config"
     ],
-    "11": [
+    "10": [
       "vitest_config"
     ]
   },
   "cohesion": {
-    "0": 0.24836601307189543,
-    "1": 0.2647058823529412,
-    "2": 0.125,
-    "3": 0.15384615384615385,
-    "4": 0.2692307692307692,
+    "0": 0.15402298850574714,
+    "1": 0.08333333333333333,
+    "2": 0.23391812865497075,
+    "3": 0.22857142857142856,
+    "4": 0.15384615384615385,
     "5": 0.18181818181818182,
-    "6": 0.25,
+    "6": 0.4,
     "7": 1.0,
     "8": 1.0,
     "9": 1.0,
-    "10": 1.0,
-    "11": 1.0
+    "10": 1.0
   },
   "gods": [
+    {
+      "id": "src_main_render",
+      "label": "render()",
+      "degree": 16
+    },
+    {
+      "id": "src_main_bindevents",
+      "label": "bindEvents()",
+      "degree": 13
+    },
     {
       "id": "tsconfig_compileroptions",
       "label": "compilerOptions",
       "degree": 12
     },
     {
-      "id": "src_main_render",
-      "label": "render()",
-      "degree": 10
-    },
-    {
-      "id": "src_main_bindevents",
-      "label": "bindEvents()",
-      "degree": 10
-    },
-    {
       "id": "src_main_trendspage",
       "label": "trendsPage()",
-      "degree": 8
+      "degree": 9
     },
     {
       "id": "src_main_handlesubmit",
       "label": "handleSubmit()",
+      "degree": 9
+    },
+    {
+      "id": "src_main_announce",
+      "label": "announce()",
+      "degree": 9
+    },
+    {
+      "id": "src_main_resetdemo",
+      "label": "resetDemo()",
       "degree": 8
     },
     {
       "id": "src_main_start",
       "label": "start()",
-      "degree": 7
+      "degree": 8
     },
     {
-      "id": "src_main_announce",
-      "label": "announce()",
-      "degree": 7
-    },
-    {
-      "id": "src_main_confirmdelete",
-      "label": "confirmDelete()",
-      "degree": 7
-    },
-    {
-      "id": "src_main_confirmimport",
-      "label": "confirmImport()",
-      "degree": 7
+      "id": "src_main_loadentriesforroute",
+      "label": "loadEntriesForRoute()",
+      "degree": 8
     },
     {
       "id": "src_storage_getentries",
       "label": "getEntries()",
-      "degree": 7
+      "degree": 8
     }
   ],
   "surprises": [
     {
+      "source": "trendsPage()",
+      "target": "average()",
+      "source_files": [
+        "src/main.ts",
+        "src/metrics.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
       "source": "entryCard()",
+      "target": "levelLabel()",
+      "source_files": [
+        "src/main.ts",
+        "src/metrics.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "trendChart()",
       "target": "levelLabel()",
       "source_files": [
         "src/main.ts",
@@ -217,30 +256,8 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "start()",
-      "target": "getEntries()",
-      "source_files": [
-        "src/main.ts",
-        "src/storage.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
-      "source": "trendChart()",
-      "target": "levelLabel()",
-      "source_files": [
-        "src/main.ts",
-        "src/metrics.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
-    {
       "source": "trendsPage()",
-      "target": "average()",
+      "target": "trend()",
       "source_files": [
         "src/main.ts",
         "src/metrics.ts"
