@@ -44,6 +44,7 @@ Results:
 - Live Axe via Playwright: 0 violations, including 0 serious/critical. The standalone `@axe-core/cli` could not launch because this worker has no system Chrome; the repository and live checks use Playwright’s installed Chromium instead.
 - Live Lighthouse mobile on `/demo`: Performance 99, Accessibility 100, Best Practices 100, SEO 100; LCP 1.35 s and CLS 0.
 - Live headers: `manifest.webmanifest` is `application/manifest+json`; CSP and Permissions-Policy are present; static assets use `Cache-Control: public, max-age=604800`; the unknown `/not-a-page` URL returns HTTP 404 and the designed page.
+- Live `index.html`, manifest, and service worker hash-match the final deployed `dist/` output. Root SHA-256: `6cb0d3df51ff0364b1998b522fff6e6ef02f6e171972f5f912981b74acf869bf`.
 
 Evidence is in `/work/.evidence/comprehensible-input-log-repair-1-live/`, including fresh desktop/phone screenshots, browser results, demo isolation flow, offline result, Axe output, and Lighthouse JSON. The catalog description is copied to `/work/.evidence/catalog-description.txt`.
 
@@ -75,3 +76,4 @@ The app is a static local-first PWA. It has no backend, tenant, rate-limit, or d
 - Understanding bands remain subjective; they are not proficiency scores or language certification.
 - Real data is browser-local. A JSON backup is the recovery and transfer path; cross-device sync is intentionally out of scope.
 - The 404 response is for unknown URLs. `/404` is a directly viewable designed page but, as a named valid path, returns HTTP 200.
+- `graphify-out/` has pre-existing generated changes from the reviewer workflow. They were intentionally left uncommitted and are unrelated to this repair.
