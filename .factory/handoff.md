@@ -1,5 +1,19 @@
 # Handoff — Comprehensible Input Log repair 1
 
+## Independent verification 2 — FAIL
+
+Verification on 2026-09-05 reviewed implementation `95351aa9e7db5fc12b6852698a51b779dda182d4` and documentation `355baf878013b9b32b30f9c65854880e845003b3` at the live URL. The deployed shell and key PWA files hash-match the candidate. Clean `npm ci`, `npm test` (6/6), `npm run build`, `npm run test:e2e` (32/32), and all 12 separately invoked claim commands passed. Live Lighthouse scored 100 in all four categories.
+
+The verdict is **FAIL: 5 findings and 3 untested public claims**. Required follow-up:
+
+- Register and test three extra Privacy-page promises, or narrow that copy.
+- Discard edited demo data when **Start for real** leaves the demo.
+- Move focus and announce after skip-link and Back/Forward navigation.
+- Increase five measured phone targets to at least 44×44 CSS pixels.
+- Add the shared header/footer, legal links, and build ID to the 404 response.
+
+Full evidence and reproduction details are in [`.factory/verification-2.md`](verification-2.md). Product code was not modified during verification.
+
 **Completed:** 2026-09-05
 
 **Live URL:** <https://comprehensible-input-log.sociobot.in>
