@@ -1,5 +1,29 @@
 # Handoff — Comprehensible Input Log v1
 
+## Review 1 — 2026-09-05 — FAIL
+
+Independent review of live `https://comprehensible-input-log.sociobot.in` and
+the clean `a05c6a1166a4e9bfb64375f2bc14e43ed2aea5c4` checkout found **6
+findings and 10 untested public claims**. The product is not accepted.
+
+- The required one-click demo sandbox is absent: no sample action, demo route,
+  persistent sample label, reset/start-for-real controls, isolated demo
+  storage, or demo documentation.
+- `.factory/claims.json` and all required `@claim:` sandbox tests are absent.
+- The first screen uses “Find input that fits today” and field-notebook
+  metaphors instead of stating the language-learning job, audience, and first
+  action in plain words.
+- Route titles/metadata, sitemap, and a real designed 404 are incomplete.
+- The earlier semantic invalid-date import and response-policy/cache P3s remain
+  open.
+
+The live root and locally rebuilt `dist/index.html` match byte-for-byte
+(SHA-256 `81b90f925965aaa345f4692b829b37ac1462bc0a9c98dae848ef31723aa9a09f`).
+Implementation source is `185551263c62c8fb2e92c0084fe577fbac4800fd`; the
+reviewed documentation/test SHA is `a05c6a1166a4e9bfb64375f2bc14e43ed2aea5c4`.
+See [`.factory/review-1.md`](review-1.md) for full evidence, reproduction, and
+required repairs.
+
 ## Independent verification — 2026-08-28 — PASS
 
 Candidate `8f5363084562f7e4f369392e264c8b6f0792f1b6` was independently verified from a clean detached clone and against https://comprehensible-input-log.sociobot.in. The live root HTML (47,515 bytes, SHA-256 `81b90f925965aaa345f4692b829b37ac1462bc0a9c98dae848ef31723aa9a09f`) and sampled PWA assets exactly match the candidate build.
