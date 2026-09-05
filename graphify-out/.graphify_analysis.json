@@ -168,6 +168,16 @@
       "degree": 8
     },
     {
+      "id": "src_main_start",
+      "label": "start()",
+      "degree": 7
+    },
+    {
+      "id": "src_main_announce",
+      "label": "announce()",
+      "degree": 7
+    },
+    {
       "id": "src_main_confirmdelete",
       "label": "confirmDelete()",
       "degree": 7
@@ -178,33 +188,12 @@
       "degree": 7
     },
     {
-      "id": "src_main_announce",
-      "label": "announce()",
-      "degree": 7
-    },
-    {
-      "id": "src_main_start",
-      "label": "start()",
-      "degree": 7
-    },
-    {
       "id": "src_storage_getentries",
       "label": "getEntries()",
       "degree": 7
     }
   ],
   "surprises": [
-    {
-      "source": "journalPage()",
-      "target": "nextTarget()",
-      "source_files": [
-        "src/main.ts",
-        "src/metrics.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities"
-    },
     {
       "source": "entryCard()",
       "target": "levelLabel()",
@@ -217,8 +206,8 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "trendsPage()",
-      "target": "average()",
+      "source": "journalPage()",
+      "target": "nextTarget()",
       "source_files": [
         "src/main.ts",
         "src/metrics.ts"
@@ -228,11 +217,11 @@
       "why": "bridges separate communities"
     },
     {
-      "source": "trendsPage()",
-      "target": "trend()",
+      "source": "start()",
+      "target": "getEntries()",
       "source_files": [
         "src/main.ts",
-        "src/metrics.ts"
+        "src/storage.ts"
       ],
       "confidence": "EXTRACTED",
       "relation": "calls",
@@ -241,6 +230,17 @@
     {
       "source": "trendChart()",
       "target": "levelLabel()",
+      "source_files": [
+        "src/main.ts",
+        "src/metrics.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "trendsPage()",
+      "target": "average()",
       "source_files": [
         "src/main.ts",
         "src/metrics.ts"
