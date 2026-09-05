@@ -1,56 +1,66 @@
 # Comprehensible Input Log
 
-A private, source-agnostic field notebook for language learners. Log a book, podcast, video, article, or other source; record how much felt understandable; note up to three recurring unknown words; and use the trend and next-source target to choose material with less guesswork.
+## Log language input you understand
 
-The app is not a proficiency test and does not assign language levels. Ratings are personal observations. It does not upload or host study media.
+For language self-learners who want books, podcasts, and videos that fit their understanding.
 
 Live: https://comprehensible-input-log.sociobot.in
+Try the sample: https://comprehensible-input-log.sociobot.in/demo
 
-## What it includes
+## What it does
 
-- Offline-first installable PWA with IndexedDB persistence
-- Add, edit, and confirmed-delete flows for observations
-- Duration in minutes or pages, finished/stopped status, optional language and notes
-- Five plain-language comprehension bands with calibration ranges
-- Trend chart with a text equivalent and simple recent-pattern interpretation
-- Practical next-source target based on the latest four observations
-- Complete JSON backup/import and spreadsheet-friendly CSV export
-- Local `/privacy` and `/terms` pages; no account, tracking, third-party scripts, or CDN fonts
-- Responsive light/dark botanical field-guide design with reduced-motion support
+- Log books, podcasts, videos, articles, and other language sources.
+- Rate understanding as a personal observation, not a proficiency score.
+- See an understanding trend and a next-source suggestion.
+- Keep source entries in this browser after a reload.
+- Work offline after the first visit.
+- Export the input log as a JSON backup or CSV.
+- Preview an import before it replaces the current log.
+- Try the log for free without an account.
+- Send no account or analytics requests.
+- Do not upload or host study media.
+
+## Demo sandbox
+
+The first-screen **Try it with sample data** link opens `/demo` with four fictional sources. The persistent demo banner can reset those records or start a real log. Sample data stays separate from the real log. See [`.factory/demo.md`](.factory/demo.md) for its sample, reset behavior, and IndexedDB namespaces.
 
 ## Run locally
 
 Requires a current Node.js release and npm.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Open the URL Vite prints. Data is specific to that browser origin.
+Open the URL Vite prints. Use `/demo` for the sample log.
 
 ## Test and build
 
 ```sh
-npm test          # unit tests
-npm run test:e2e  # Playwright: desktop, mobile, axe, offline
-npm run build     # reproducible production output in dist/
-npm run preview   # serve dist locally
+npm test
+npm run test:e2e
+npm run build
+npm run preview
 ```
 
-The exact deployment build command is `npm run build`; publish `dist/` as a static site with SPA fallback to `index.html` so direct visits to `/privacy` and `/terms` resolve correctly. No environment variables or server are required.
+Run every declared claim command from a clean checkout:
 
-The browser tests pin Playwright 1.58.2 and expect its Chromium build to be available. Run `npx playwright install chromium` if needed outside the factory worker.
+```sh
+node -e "const c=require('./.factory/claims.json'); for (const x of c) console.log(x.test)"
+```
 
-## Data ownership
+Copy each printed command into the shell. The browser tests use Playwright 1.58.2. Run `npx playwright install chromium` if Chromium is missing outside the factory worker.
 
-Observations live only in the browser’s IndexedDB database named `comprehensible-input-log`. JSON exports are versioned and suitable for full restoration; importing shows a count preview and atomically replaces the current local log after confirmation. CSV is intended for analysis, not restoration.
+The deployment build command is `npm run build`. Publish `dist/` as a static site. [`staticwebapp.config.json`](staticwebapp.config.json) provides the SPA fallback, a designed 404 response, MIME type, cache policy, and response headers for Static Web Apps.
 
-Clearing site data, using ephemeral/private browsing, or uninstalling the PWA may remove local observations. Keep JSON backups when the history matters.
+## Data and privacy
+
+Real entries use the browser IndexedDB database `comprehensible-input-log`. Demo entries use `demo:comprehensible-input-log`. Clearing site data, private browsing, or uninstalling the PWA can remove local entries. Keep a JSON backup when the history matters.
 
 ## Design and provenance
 
-The researched scope is in [`.factory/brief.json`](.factory/brief.json), the product-specific visual system and generated-asset provenance are in [`.factory/design.md`](.factory/design.md), and verification notes are in [`.factory/handoff.md`](.factory/handoff.md).
+The researched scope is in [`.factory/brief.json`](.factory/brief.json). The visual system and image provenance are in [`.factory/design.md`](.factory/design.md). The repair handoff is in [`.factory/handoff.md`](.factory/handoff.md).
 
 ## License
 

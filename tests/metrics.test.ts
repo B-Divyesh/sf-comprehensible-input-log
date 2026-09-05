@@ -39,4 +39,11 @@ describe('import validation', () => {
     expect(() => validateImport({ product: 'other', version: 1, entries: [] })).toThrow(/not a supported/);
     expect(() => validateImport({ product: 'comprehensible-input-log', version: 1, entries: [{ id: 'x', title: 'Bad', comprehension: 9, words: [] }] })).toThrow(/invalid/);
   });
+
+  it('rejects impossible and future calendar dates before replacement', () => {
+    const impossible = makeEntry(3, '2026-99-99');
+    const future = makeEntry(3, '2099-01-01');
+    expect(() => validateImport({ product: 'comprehensible-input-log', version: 1, entries: [impossible] })).toThrow(/invalid/);
+    expect(() => validateImport({ product: 'comprehensible-input-log', version: 1, entries: [future] })).toThrow(/invalid/);
+  });
 });

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "demo-isolation",
+    "claim": "Sample data stays separate from your real log.",
+    "where": "Demo banner, demo documentation",
+    "test": "npm run test:e2e -- --grep @claim:demo-isolation",
+    "sandbox": "Create a real source, enter /demo, then return to the real log and verify each log only contains its own data."
+  },
+  {
+    "id": "source-agnostic-log",
+    "claim": "Log books, podcasts, videos, articles, and other language sources.",
+    "where": "Home page and README",
+    "test": "npm run test:e2e -- --grep @claim:source-agnostic-log",
+    "sandbox": "Open /demo, inspect the realistic multi-media sample, then save an Other source."
+  },
+  {
+    "id": "subjective-ratings",
+    "claim": "Understanding ratings are personal observations, not proficiency scores.",
+    "where": "Source form, Trends, README",
+    "test": "npm run test:e2e -- --grep @claim:subjective-ratings",
+    "sandbox": "Open /demo, open the source form, and select a visible understanding band."
+  },
+  {
+    "id": "trend-guidance",
+    "claim": "See an understanding trend and a next-source suggestion.",
+    "where": "Home page, Trends, README",
+    "test": "npm run test:e2e -- --grep @claim:trend-guidance",
+    "sandbox": "Open /demo and move from its populated log to Trends."
+  },
+  {
+    "id": "browser-local-persistence",
+    "claim": "Keep source entries in this browser after a reload.",
+    "where": "Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:browser-local-persistence",
+    "sandbox": "Add a source in /demo, reload, and observe the saved source."
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "Home page, Terms, README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "Fresh browser context opens /demo, waits for the service worker, goes offline, then reloads."
+  },
+  {
+    "id": "json-backup",
+    "claim": "Export the input log as a JSON backup.",
+    "where": "Trends, Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:json-backup",
+    "sandbox": "Open /demo, export JSON, and inspect its four sample records."
+  },
+  {
+    "id": "csv-export",
+    "claim": "Export the input log as CSV.",
+    "where": "Trends, Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:csv-export",
+    "sandbox": "Open /demo, export CSV, and assert its header plus one row per sample record."
+  },
+  {
+    "id": "import-confirmation",
+    "claim": "Preview an import before it replaces the current log.",
+    "where": "Trends and README",
+    "test": "npm run test:e2e -- --grep @claim:import-confirmation",
+    "sandbox": "Open /demo, select a valid backup, observe the replacement dialog, and cancel it."
+  },
+  {
+    "id": "free-no-account",
+    "claim": "Try the log for free without an account.",
+    "where": "Home page and README",
+    "test": "npm run test:e2e -- --grep @claim:free-no-account",
+    "sandbox": "Open /demo in a fresh browser context and use the populated sample without authentication or payment."
+  },
+  {
+    "id": "no-account-analytics",
+    "claim": "The app has no account or analytics requests.",
+    "where": "Home page, Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:no-account-analytics",
+    "sandbox": "Record all requests during the /demo flow and assert they remain same-origin."
+  },
+  {
+    "id": "no-media-uploads",
+    "claim": "The app does not upload or host study media.",
+    "where": "Home page, Privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:no-media-uploads",
+    "sandbox": "Save a source in /demo while recording requests and assert no non-GET request occurs."
+  }
+]

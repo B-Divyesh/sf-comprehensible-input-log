@@ -37,5 +37,4 @@ The hero includes one original still-life illustration: a pressed fern crossing 
 
 Prompt sheet: “Editorial botanical field-guide still life, top-down open naturalist notebook on warm cream handmade paper, one delicate pressed fern frond crossing the page, tiny abstract ink marks and three simple specimen dots suggesting book audio and film, forest-green and ochre ink, subtle paper grain, quiet morning window light, generous negative space, tactile analog printmaking with precise modern composition, no people, no device UI, no readable text, no letters, no logos, no watermark, no brand symbols.”
 
-Asset: `public/assets/field-notes-hero.webp` (plus AVIF and PNG source). Generated with Azure OpenAI image generation deployment `factory-image` on 2026-08-27. Original for this product. Reviewed for text artifacts, unwanted symbols, seams, and palette consistency. The footer discloses AI-assisted imagery.
-
+Asset: `public/assets/field-notes-hero.webp` (plus AVIF and PNG source). Generated with Azure OpenAI image generation deployment `factory-image` on 2026-08-27. Original for this product. Reviewed for text artifacts, unwanted symbols, seams, and palette consistency. `public/assets/field-notes-social.jpg` is a 1200×630 crop derived from the reviewed original for social metadata. The footer discloses AI-assisted imagery.

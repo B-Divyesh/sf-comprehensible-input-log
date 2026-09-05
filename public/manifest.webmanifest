@@ -1,8 +1,8 @@
 {
   "name": "Comprehensible Input Log",
   "short_name": "Input Log",
-  "description": "A private, offline field log for finding language input that fits.",
-  "start_url": "/?source=pwa-v1",
+  "description": "Log language input you understand and choose the next source that fits.",
+  "start_url": "/?source=pwa-v1.1",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f2eddf",

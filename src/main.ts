@@ -1,6 +1,7 @@
 import './style.css';
 import { average, LEVELS, levelLabel, nextTarget, trend } from './metrics';
-import { deleteEntry, getEntries, replaceEntries, saveEntry, validateImport } from './storage';
+import { freshDemoEntries } from './demo';
+import { deleteEntry, getEntries, isValidEntryDate, replaceEntries, saveEntry, setStorageNamespace, validateImport } from './storage';
 import type { ExportFile, LogEntry, SourceType } from './types';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -9,6 +10,16 @@ let activeView: 'journal' | 'trends' = 'journal';
 let editingId: string | null = null;
 let deleteId: string | null = null;
 let pendingImport: LogEntry[] | null = null;
+
+type Route = 'home' | 'demo' | 'privacy' | 'terms' | 'not-found';
+
+const routeDetails: Record<Route, { title: string; description: string }> = {
+  home: { title: 'Comprehensible Input Log — Choose language input', description: 'Log language input you understand and choose the next book, podcast, or video that fits.' },
+  demo: { title: 'Demo — Comprehensible Input Log', description: 'Try a private sample language input log with realistic books, podcasts, videos, and trends.' },
+  privacy: { title: 'Privacy — Comprehensible Input Log', description: 'Learn how Comprehensible Input Log keeps your language input log on this device.' },
+  terms: { title: 'Terms — Comprehensible Input Log', description: 'Read the terms for using Comprehensible Input Log.' },
+  'not-found': { title: 'Page not found — Comprehensible Input Log', description: 'Return to the Comprehensible Input Log home page.' },
+};
 
 const icons: Record<string, string> = {
   sprout: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21v-9m0 1c-4 0-7-2-7-6 4 0 7 2 7 6Zm0 3c4 0 7-2 7-6-4 0-7 2-7 6Z"/></svg>',
@@ -25,25 +36,52 @@ function escapeHtml(value: string): string {
   return el.innerHTML;
 }
 
-function shell(content: string, page: 'app' | 'privacy' | 'terms' = 'app'): string {
+function currentRoute(): Route {
+  if (location.pathname === '/privacy') return 'privacy';
+  if (location.pathname === '/terms') return 'terms';
+  if (location.pathname === '/demo' || new URLSearchParams(location.search).get('demo') === '1') return 'demo';
+  if (location.pathname === '/' || location.pathname === '/index.html') return 'home';
+  return 'not-found';
+}
+
+function isDemo(): boolean {
+  return currentRoute() === 'demo';
+}
+
+function updateDocumentMeta(route: Route): void {
+  const details = routeDetails[route];
+  document.title = details.title;
+  document.querySelector<HTMLMetaElement>('meta[name="description"]')!.content = details.description;
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')!.href = `${location.origin}${location.pathname}`;
+  document.querySelector<HTMLMetaElement>('meta[property="og:title"]')!.content = details.title;
+  document.querySelector<HTMLMetaElement>('meta[property="og:description"]')!.content = details.description;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:title"]')!.content = details.title;
+  document.querySelector<HTMLMetaElement>('meta[name="twitter:description"]')!.content = details.description;
+}
+
+function shell(content: string, route: Route = 'home'): string {
+  const appRoute = route === 'home' || route === 'demo';
   return `
     <header class="site-header">
       <a class="wordmark" href="/" data-route aria-label="Comprehensible Input Log home">
         <span class="seal">${icons.sprout}</span><span>Input Log</span>
       </a>
-      ${page === 'app' ? `<nav aria-label="Primary"><button class="nav-tab ${activeView === 'journal' ? 'is-active' : ''}" data-view="journal">Journal</button><button class="nav-tab ${activeView === 'trends' ? 'is-active' : ''}" data-view="trends">Trends</button></nav><button class="button primary header-action" data-open-form aria-label="Log a source">${icons.sprout}<span>Log a source</span></button>` : '<a class="button quiet" href="/" data-route>Back to journal</a>'}
+      <nav aria-label="Primary">${appRoute ? `<button class="nav-tab ${activeView === 'journal' ? 'is-active' : ''}" data-view="journal">Log</button><button class="nav-tab ${activeView === 'trends' ? 'is-active' : ''}" data-view="trends">Trends</button>` : '<a class="nav-link" href="/" data-route>Log</a>'}<a class="nav-link ${route === 'demo' ? 'is-active' : ''}" href="/demo" data-route>Demo</a><a class="nav-link ${route === 'privacy' ? 'is-active' : ''}" href="/privacy" data-route>Privacy</a></nav>
+      ${appRoute ? `<button class="button primary header-action" data-open-form aria-label="Log a source">${icons.sprout}<span>Log a source</span></button>` : '<a class="button quiet" href="/" data-route>Back to log</a>'}
     </header>
     <main id="main" tabindex="-1">${content}</main>
-    <footer><p>Your observations stay on this device. No account, analytics, or uploads.</p><nav aria-label="Legal"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a></nav><p class="asset-note">Original AI-assisted field illustration · © 2026 Param Factory</p></footer>
+    <footer><p>Private local input log for language learners.</p><nav aria-label="Legal"><a href="/privacy" data-route>Privacy</a><a href="/terms" data-route>Terms</a></nav><p class="asset-note">Built by Param Factory · Build 1.1.0 · Original AI-assisted field illustration</p></footer>
     <div id="live-region" class="sr-only" aria-live="polite"></div>
   `;
 }
 
 function render(): void {
-  const path = location.pathname;
-  if (path === '/privacy') app.innerHTML = shell(legalPage('privacy'), 'privacy');
-  else if (path === '/terms') app.innerHTML = shell(legalPage('terms'), 'terms');
-  else app.innerHTML = shell(activeView === 'journal' ? journalPage() : trendsPage());
+  const route = currentRoute();
+  updateDocumentMeta(route);
+  if (route === 'privacy') app.innerHTML = shell(legalPage('privacy'), route);
+  else if (route === 'terms') app.innerHTML = shell(legalPage('terms'), route);
+  else if (route === 'not-found') app.innerHTML = shell(notFoundPage(), route);
+  else app.innerHTML = shell(`${route === 'demo' ? demoBanner() : ''}${activeView === 'journal' ? journalPage() : trendsPage()}`, route);
   bindEvents();
 }
 
@@ -52,27 +90,27 @@ function journalPage(): string {
   return `
     <section class="hero ${entries.length ? 'hero-compact' : ''}" aria-labelledby="page-title">
       <div class="hero-copy">
-        <p class="eyebrow">Your private field notebook</p>
-        <h1 id="page-title">Find input that<br><em>fits today.</em></h1>
-        <p class="lede">Notice what you understand across books, podcasts, and videos—then choose the next source with less guesswork.</p>
-        ${!entries.length ? `<button class="button primary large" data-open-form>${icons.sprout}<span>Log your first source</span></button><p class="microcopy">Offline-first · no account · your ratings are not proficiency scores</p>` : ''}
+        <p class="eyebrow">Private language input log</p>
+        <h1 id="page-title">Log language input you understand</h1>
+        <p class="lede">For language self-learners who want books, podcasts, and videos that fit their understanding.</p>
+        ${!entries.length ? `<div class="hero-actions"><a class="button primary large" href="/demo" data-route>${icons.sprout}<span>Try it with sample data</span></a><button class="button quiet" data-open-form>Log a source</button></div><p class="action-help">See four sample sources, a trend, and a next-source suggestion.</p><ul class="plain-facts"><li>Free to use</li><li>Works offline after the first visit</li><li>No account, analytics, or media uploads</li></ul>` : ''}
       </div>
       <picture class="hero-art">
         <source type="image/avif" srcset="/assets/field-notes-hero-640.avif 640w, /assets/field-notes-hero.avif 1200w" sizes="(max-width: 760px) 92vw, 48vw">
         <source type="image/webp" srcset="/assets/field-notes-hero-640.webp 640w, /assets/field-notes-hero.webp 1200w" sizes="(max-width: 760px) 92vw, 48vw">
-        <img src="/assets/field-notes-hero.webp" width="1200" height="800" alt="An open field notebook with a pressed fern and abstract ink marks" decoding="async" fetchpriority="high">
+        <img src="/assets/field-notes-hero.webp" width="1200" height="800" alt="An open notebook with a pressed fern and abstract marks for books, audio, and video" decoding="async" fetchpriority="high">
       </picture>
     </section>
-    ${entries.length ? `<section class="target-section" aria-labelledby="next-target"><div class="section-marker">Next specimen</div><div class="target-copy"><h2 id="next-target">${target.title}</h2><p>${target.detail}</p></div><button class="button secondary" data-open-form>Log the next one</button></section>` : gettingStarted()}
+    ${entries.length ? `<section class="target-section" aria-labelledby="next-target"><div class="section-marker">Next source</div><div class="target-copy"><h2 id="next-target">${target.title}</h2><p>${target.detail}</p></div><button class="button secondary" data-open-form>Log a source</button></section>` : gettingStarted()}
     <section class="log-section" aria-labelledby="observations-heading">
-      <div class="section-heading"><div><p class="eyebrow">Field observations</p><h2 id="observations-heading">Your input log</h2></div>${entries.length ? `<p><strong>${entries.length}</strong> ${entries.length === 1 ? 'source' : 'sources'} recorded</p>` : ''}</div>
-      ${entries.length ? `<ol class="entry-list">${entries.map(entryCard).join('')}</ol>` : `<div class="empty-log"><span class="empty-glyph">${icons.sprout}</span><h3>No observations yet</h3><p>After each reading or listening session, note what felt understandable. Patterns appear after a few entries.</p><button class="button secondary" data-open-form>Make an observation</button></div>`}
+      <div class="section-heading"><div><p class="eyebrow">Saved sources</p><h2 id="observations-heading">Your input log</h2></div>${entries.length ? `<p><strong>${entries.length}</strong> ${entries.length === 1 ? 'source' : 'sources'} recorded</p>` : ''}</div>
+      ${entries.length ? `<ol class="entry-list">${entries.map(entryCard).join('')}</ol>` : `<div class="empty-log"><span class="empty-glyph">${icons.sprout}</span><h3>No sources yet</h3><p>Log a reading, listening, or viewing session. Your trend appears after a few entries.</p><button class="button secondary" data-open-form>Log a source</button></div>`}
     </section>
     ${dialogs()}`;
 }
 
 function gettingStarted(): string {
-  return `<section class="how-it-works" aria-labelledby="how-heading"><p class="eyebrow">A simple field method</p><h2 id="how-heading">Observe, don’t test.</h2><ol><li><span>01</span><div><h3>Choose anything</h3><p>A chapter, an episode, an article—this log is source-agnostic.</p></div></li><li><span>02</span><div><h3>Rate the experience</h3><p>Use a plain-language band. It is a memory aid, never a level score.</p></div></li><li><span>03</span><div><h3>Notice the pattern</h3><p>After a few entries, your trend and next-source target become useful.</p></div></li></ol></section>`;
+  return `<section class="how-it-works" aria-labelledby="how-heading"><p class="eyebrow">How it works</p><h2 id="how-heading">Choose your next language source</h2><ol><li><span>01</span><div><h3>Log a source</h3><p>Add any book, podcast, video, article, or other source.</p></div></li><li><span>02</span><div><h3>Rate understanding</h3><p>Choose a personal understanding band. It is not a language score.</p></div></li><li><span>03</span><div><h3>Check the trend</h3><p>Use recent entries to choose the next source.</p></div></li></ol></section>`;
 }
 
 function entryCard(entry: LogEntry): string {
@@ -92,16 +130,16 @@ function trendsPage(): string {
   const direction = trend(entries);
   const stopped = entries.filter(entry => entry.status === 'stopped').length;
   const words = recurringWords(entries);
-  return `<section class="page-intro"><p class="eyebrow">Reading the habitat</p><h1>Your understanding,<br><em>over time.</em></h1><p>These are your own observations—not a language level or proficiency assessment.</p></section>
-    ${entries.length < 2 ? `<section class="trend-empty"><div class="empty-glyph">${icons.sprout}</div><h2>${entries.length ? 'One more point starts a trend' : 'Your trend needs observations'}</h2><p>${entries.length ? 'Log another source when you are ready. Four or more observations make the direction more meaningful.' : 'Record at least two sources to connect the first line.'}</p><button class="button primary" data-open-form>Log a source</button></section>` : `
+  return `<section class="page-intro"><p class="eyebrow">Understanding trend</p><h1>See your understanding trend</h1><p>These are your own observations, not a language level or proficiency assessment.</p></section>
+    ${entries.length < 2 ? `<section class="trend-empty"><div class="empty-glyph">${icons.sprout}</div><h2>${entries.length ? 'One more source starts a trend' : 'Your trend needs sources'}</h2><p>${entries.length ? 'Log another source when you are ready. Four or more sources make the direction clearer.' : 'Log at least two sources to draw the first line.'}</p><button class="button primary" data-open-form>Log a source</button></section>` : `
     <section class="trend-grid" aria-label="Input summary">
       <div class="metric"><p>Recent understanding</p><strong>${avg?.toFixed(1)} <small>of 5 bands</small></strong><span>${direction === 'new' ? 'Still gathering a pattern' : direction === 'improving' ? 'Trending more understandable' : direction === 'easing' ? 'Recently more demanding' : 'Holding steady'}</span></div>
       <div class="metric"><p>Sessions completed</p><strong>${entries.length - stopped}<small> of ${entries.length}</small></strong><span>${stopped ? `${stopped} stopped early—useful evidence, too` : 'No sessions stopped early'}</span></div>
       <div class="metric"><p>Recurring words noted</p><strong>${new Set(entries.flatMap(e => e.words.map(w => w.toLowerCase()))).size}</strong><span>${words.length ? `Most seen: ${escapeHtml(words.slice(0, 2).join(', '))}` : 'Add words only when they recur'}</span></div>
     </section>
     ${trendChart(entries)}
-    <section class="interpretation"><p class="eyebrow">How to read this</p><h2>${direction === 'improving' ? 'More is coming into focus.' : direction === 'easing' ? 'The recent material asks more of you.' : 'Your range looks steady.'}</h2><p>${direction === 'improving' ? 'Your later observations sit above the earlier ones. Keep the format stable before adding difficulty.' : direction === 'easing' ? 'That is not failure. Try a familiar topic, shorter session, or replay before deciding the material is a poor fit.' : 'Steady comprehension can mean you have found a productive habitat. Change only one variable at a time.'}</p></section>`}
-    <section class="data-tools" aria-labelledby="data-heading"><div><p class="eyebrow">Your data</p><h2 id="data-heading">Carry the notebook with you.</h2><p>Export a complete JSON backup or a spreadsheet-friendly CSV. Import replaces this device’s current log only after you confirm.</p></div><div class="tool-actions"><button class="button secondary" data-export="json" ${!entries.length ? 'disabled' : ''}>Export JSON</button><button class="button quiet" data-export="csv" ${!entries.length ? 'disabled' : ''}>Export CSV</button><label class="button quiet file-button">Import JSON<input id="import-file" type="file" accept="application/json,.json"></label></div></section>
+    <section class="interpretation"><p class="eyebrow">How to read the trend</p><h2>${direction === 'improving' ? 'Later sources felt easier.' : direction === 'easing' ? 'Recent sources felt harder.' : 'Your recent range is steady.'}</h2><p>${direction === 'improving' ? 'Your later ratings sit above earlier ones. Keep the format stable before adding difficulty.' : direction === 'easing' ? 'Try a familiar topic, a shorter session, or a replay before choosing different material.' : 'Steady understanding can show that the material fits. Change one thing at a time.'}</p></section>`}
+    <section class="data-tools" aria-labelledby="data-heading"><div><p class="eyebrow">Your data</p><h2 id="data-heading">Export or import your log</h2><p>Export a JSON backup or a spreadsheet-ready CSV. Import replaces this ${isDemo() ? 'demo' : 'local'} log only after you confirm.</p></div><div class="tool-actions"><button class="button secondary" data-export="json" ${!entries.length ? 'disabled' : ''}>Export JSON</button><button class="button quiet" data-export="csv" ${!entries.length ? 'disabled' : ''}>Export CSV</button><label class="button quiet file-button">Import JSON<input id="import-file" type="file" accept="application/json,.json"></label></div></section>
     ${dialogs()}`;
 }
 
@@ -111,7 +149,7 @@ function trendChart(items: LogEntry[]): string {
   const x = (index: number) => left + (index * (width - left - right)) / Math.max(1, points.length - 1);
   const y = (value: number) => top + ((5 - value) * (height - top - bottom)) / 4;
   const path = points.map((point, i) => `${i ? 'L' : 'M'} ${x(i)} ${y(point.comprehension)}`).join(' ');
-  return `<figure class="chart"><figcaption><div><p class="eyebrow">Last ${points.length} observations</p><h2>Comprehension trail</h2></div><p class="chart-key"><span></span>Your self-rated band</p></figcaption><div class="chart-wrap"><svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Comprehension observations over time</title><desc id="chart-desc">${points.map(p => `${p.date}: ${levelLabel(p.comprehension)}`).join('; ')}</desc>${[1,2,3,4,5].map(level => `<line x1="${left}" x2="${width-right}" y1="${y(level)}" y2="${y(level)}"/><text x="${left-10}" y="${y(level)+4}" text-anchor="end">${level}</text>`).join('')}<path class="trend-line" d="${path}"/>${points.map((point, i) => `<circle cx="${x(i)}" cy="${y(point.comprehension)}" r="6"><title>${escapeHtml(point.title)}: ${levelLabel(point.comprehension)}</title></circle>`).join('')}${points.map((point, i) => `<text class="date-label" x="${x(i)}" y="${height-10}" text-anchor="middle">${i === 0 || i === points.length - 1 || points.length < 6 ? point.date.slice(5).replace('-', '/') : ''}</text>`).join('')}</svg></div><p class="chart-note">1 = A little · 3 = Most · 5 = Nearly all. Bands are personal estimates, not test results.</p></figure>`;
+  return `<figure class="chart"><figcaption><div><p class="eyebrow">Last ${points.length} sources</p><h2>Understanding over time</h2></div><p class="chart-key"><span></span>Your self-rated band</p></figcaption><div class="chart-wrap"><svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Understanding observations over time</title><desc id="chart-desc">${points.map(p => `${p.date}: ${levelLabel(p.comprehension)}`).join('; ')}</desc>${[1,2,3,4,5].map(level => `<line x1="${left}" x2="${width-right}" y1="${y(level)}" y2="${y(level)}"/><text x="${left-10}" y="${y(level)+4}" text-anchor="end">${level}</text>`).join('')}<path class="trend-line" d="${path}"/>${points.map((point, i) => `<circle cx="${x(i)}" cy="${y(point.comprehension)}" r="6"><title>${escapeHtml(point.title)}: ${levelLabel(point.comprehension)}</title></circle>`).join('')}${points.map((point, i) => `<text class="date-label" x="${x(i)}" y="${height-10}" text-anchor="middle">${i === 0 || i === points.length - 1 || points.length < 6 ? point.date.slice(5).replace('-', '/') : ''}</text>`).join('')}</svg></div><p class="chart-note">1 = A little · 3 = Most · 5 = Nearly all. Bands are personal estimates, not test results.</p></figure>`;
 }
 
 function recurringWords(items: LogEntry[]): string[] {
@@ -123,7 +161,7 @@ function recurringWords(items: LogEntry[]): string[] {
 function formDialog(): string {
   const entry = entries.find(item => item.id === editingId);
   const today = new Date().toISOString().slice(0, 10);
-  return `<dialog id="entry-dialog" class="entry-dialog"><form id="entry-form" method="dialog" novalidate><div class="dialog-heading"><div><p class="eyebrow">Field observation</p><h2>${entry ? 'Edit this source' : 'Log a source'}</h2></div><button class="close-button" type="button" data-close-dialog aria-label="Close dialog">×</button></div>
+  return `<dialog id="entry-dialog" class="entry-dialog"><form id="entry-form" method="dialog" novalidate><div class="dialog-heading"><div><p class="eyebrow">Session details</p><h2>${entry ? 'Edit this source' : 'Log a source'}</h2></div><button class="close-button" type="button" data-close-dialog aria-label="Close dialog">×</button></div>
     <div id="form-error" class="form-error" role="alert" hidden></div>
     <div class="form-grid"><div class="field field-wide"><label for="title">Source title <span aria-hidden="true">*</span></label><input id="title" name="title" required maxlength="100" value="${entry ? escapeHtml(entry.title) : ''}" autocomplete="off"><p class="field-hint">A title you will recognize later.</p></div>
     <div class="field"><label for="language">Language</label><input id="language" name="language" maxlength="40" value="${entry ? escapeHtml(entry.language) : ''}" autocomplete="off" placeholder="e.g. German"></div>
@@ -139,20 +177,25 @@ function formDialog(): string {
 }
 
 function dialogs(): string {
-  return `${formDialog()}<dialog id="confirm-dialog" class="confirm-dialog"><div><p class="eyebrow">Remove observation</p><h2>Delete “<span id="delete-title"></span>”?</h2><p>This removes it from this device. Export a backup first if you may need it later.</p><div class="dialog-actions"><button class="button quiet" data-cancel-delete>Keep it</button><button class="button danger" data-confirm-delete>Delete observation</button></div></div></dialog><dialog id="import-dialog" class="confirm-dialog"><div><p class="eyebrow">Import preview</p><h2>Replace this local log?</h2><p id="import-summary"></p><p>Your current observations will be replaced. Export them first if you may need them.</p><div class="dialog-actions"><button class="button quiet" data-cancel-import>Cancel</button><button class="button primary" data-confirm-import>Replace and import</button></div></div></dialog>`;
+  return `${formDialog()}<dialog id="confirm-dialog" class="confirm-dialog"><div><p class="eyebrow">Remove source</p><h2>Delete “<span id="delete-title"></span>”?</h2><p>This removes it from this ${isDemo() ? 'demo' : 'device'}. Export a backup first if you may need it later.</p><div class="dialog-actions"><button class="button quiet" data-cancel-delete>Keep it</button><button class="button danger" data-confirm-delete>Delete source</button></div></div></dialog><dialog id="import-dialog" class="confirm-dialog"><div><p class="eyebrow">Import preview</p><h2>Replace this ${isDemo() ? 'demo' : 'local'} log?</h2><p id="import-summary"></p><p>Your current sources will be replaced. Export them first if you may need them.</p><div class="dialog-actions"><button class="button quiet" data-cancel-import>Cancel</button><button class="button primary" data-confirm-import>Replace and import</button></div></div></dialog>`;
 }
 
 function legalPage(kind: 'privacy' | 'terms'): string {
-  return `<article class="legal"><p class="eyebrow">Plain-language ${kind}</p><h1>${kind === 'privacy' ? 'Your log belongs to you.' : 'Terms of use'}</h1>${kind === 'privacy' ? `<p class="lede">Comprehensible Input Log works without an account and keeps observations in your browser’s IndexedDB storage.</p><h2>What we collect</h2><p>Nothing. The app has no analytics, advertising, tracking pixels, accounts, or server-side database. Titles, languages, ratings, words, and notes remain on the device where you enter them.</p><h2>Backups and deletion</h2><p>You can export JSON or CSV from Trends. Clearing browser storage or removing the installed app may erase the log, so keep a JSON backup if the history matters to you. Deleting an observation removes it from local storage.</p><h2>Network use</h2><p>The service worker checks this site for updated app files. It does not send the content of your log. The app does not upload or host the media you study.</p>` : `<p class="lede">Use this free tool as a private observation notebook. It does not assess fluency or certify a language level.</p><h2>Your responsibility</h2><p>You are responsible for backups and for the notes you enter. Do not paste copyrighted books, transcripts, or sensitive personal information into the log. Source titles and up to three recurring words are enough.</p><h2>No guarantee</h2><p>Recommendations are simple reflections of your subjective recent ratings. They are not educational, medical, or professional advice. The software is provided “as is” under the MIT License.</p><h2>Availability</h2><p>The installed app is designed to work offline after its first successful load. Browser storage limits, private browsing, device policies, or clearing site data can affect persistence.</p>`}<p class="legal-updated">Effective August 27, 2026</p></article>`;
+  return `<article class="legal"><p class="eyebrow">${kind}</p><h1>${kind === 'privacy' ? 'Privacy for your input log' : 'Terms for your input log'}</h1>${kind === 'privacy' ? `<p class="lede">Comprehensible Input Log keeps sources in your browser’s IndexedDB storage. It needs no account.</p><h2>What we collect</h2><p>Nothing. The app has no analytics, advertising, tracking pixels, accounts, or server database. Titles, languages, ratings, words, and notes stay on the device where you enter them.</p><h2>Backups and deletion</h2><p>You can export JSON or CSV from Trends. Clearing browser storage or removing the installed app may erase the log. Keep a JSON backup if the history matters to you. Deleting a source removes it from local storage.</p><h2>Network use</h2><p>The service worker checks this site for updated app files. It does not send your log content. The app does not upload or host the media you study.</p>` : `<p class="lede">Use this free tool as a private input log. It does not assess fluency or certify a language level.</p><h2>Your responsibility</h2><p>You are responsible for backups and the notes you enter. Do not paste copyrighted books, transcripts, or sensitive personal information into the log. Source titles and up to three recurring words are enough.</p><h2>No guarantee</h2><p>Suggestions reflect your subjective recent ratings. They are not educational, medical, or professional advice. The software is provided “as is” under the MIT License.</p><h2>Availability</h2><p>The installed app works offline after its first successful load. Browser storage limits, private browsing, device policies, or clearing site data can affect persistence.</p>`}<p class="legal-updated">Effective September 5, 2026</p></article>`;
+}
+
+function demoBanner(): string {
+  return `<section class="demo-banner" data-demo-banner data-testid="demo-banner" aria-label="Demo controls"><p><strong>Demo — sample data, nothing is saved</strong> to your real log.</p><div><button class="button quiet" data-reset-demo>Reset demo</button><a class="button primary" href="/" data-route>Start for real</a></div></section>`;
+}
+
+function notFoundPage(): string {
+  return `<section class="not-found"><p class="eyebrow">404</p><h1>This page was not found</h1><p>Choose the input log home page to continue.</p><a class="button primary" href="/" data-route>Go to input log</a></section>`;
 }
 
 function bindEvents(): void {
   document.querySelectorAll<HTMLElement>('[data-route]').forEach(link => link.addEventListener('click', event => {
     event.preventDefault();
-    history.pushState({}, '', (event.currentTarget as HTMLAnchorElement).pathname);
-    render();
-    document.querySelector<HTMLElement>('#main')?.focus({ preventScroll: true });
-    scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    void navigate((event.currentTarget as HTMLAnchorElement).href);
   }));
   document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button => button.addEventListener('click', () => {
     activeView = button.dataset.view as typeof activeView;
@@ -169,6 +212,28 @@ function bindEvents(): void {
   document.querySelector<HTMLInputElement>('#import-file')?.addEventListener('change', handleImportFile);
   document.querySelector<HTMLButtonElement>('[data-cancel-import]')?.addEventListener('click', () => { pendingImport = null; closeDialog('import-dialog'); });
   document.querySelector<HTMLButtonElement>('[data-confirm-import]')?.addEventListener('click', confirmImport);
+  document.querySelector<HTMLButtonElement>('[data-reset-demo]')?.addEventListener('click', resetDemo);
+  document.querySelector<HTMLButtonElement>('[data-reload]')?.addEventListener('click', () => location.reload());
+}
+
+async function navigate(href: string): Promise<void> {
+  const url = new URL(href, location.origin);
+  history.pushState({}, '', `${url.pathname}${url.search}`);
+  activeView = 'journal';
+  await loadEntriesForRoute();
+  render();
+  document.querySelector<HTMLElement>('#main')?.focus({ preventScroll: true });
+  scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  announce(routeDetails[currentRoute()].title);
+}
+
+async function resetDemo(): Promise<void> {
+  if (!isDemo()) return;
+  await replaceEntries(freshDemoEntries());
+  entries = await getEntries();
+  activeView = 'journal';
+  render();
+  announce('Demo reset to the four sample sources.');
 }
 
 function openForm(id?: string): void {
@@ -198,7 +263,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
   const amount = Number(formData.get('amount'));
   const comprehension = Number(formData.get('comprehension'));
   const date = String(formData.get('date') ?? '');
-  if (!title || !date || date > new Date().toISOString().slice(0, 10) || !Number.isInteger(amount) || amount < 1 || amount > 10000 || !Number.isInteger(comprehension) || comprehension < 1 || comprehension > 5) {
+  if (!title || !isValidEntryDate(date) || !Number.isInteger(amount) || amount < 1 || amount > 10000 || !Number.isInteger(comprehension) || comprehension < 1 || comprehension > 5) {
     error.textContent = 'Please add a title, date, amount, and understanding band.';
     error.hidden = false;
     const invalid = !title ? form.querySelector('#title') : !amount ? form.querySelector('#amount') : form.querySelector('input[name="comprehension"]');
@@ -249,7 +314,7 @@ async function confirmDelete(): Promise<void> {
     closeDialog('confirm-dialog');
     render();
     announce(`${entry?.title ?? 'Observation'} deleted.`);
-  } catch (cause) { announce(cause instanceof Error ? cause.message : 'Could not delete that observation.'); }
+  } catch (cause) { announce(cause instanceof Error ? cause.message : 'Could not delete that source.'); }
 }
 
 function exportData(format: 'json' | 'csv'): void {
@@ -282,7 +347,7 @@ async function handleImportFile(event: Event): Promise<void> {
     const imported = validateImport(JSON.parse(await file.text()));
     pendingImport = imported.entries;
     const dialog = document.querySelector<HTMLDialogElement>('#import-dialog')!;
-    dialog.querySelector('#import-summary')!.textContent = `The file contains ${pendingImport.length} ${pendingImport.length === 1 ? 'observation' : 'observations'}. This device currently has ${entries.length}.`;
+    dialog.querySelector('#import-summary')!.textContent = `The file contains ${pendingImport.length} ${pendingImport.length === 1 ? 'source' : 'sources'}. This ${isDemo() ? 'demo' : 'device'} currently has ${entries.length}.`;
     dialog.showModal();
   } catch (cause) {
     announce(cause instanceof Error ? cause.message : 'That file could not be read.');
@@ -295,7 +360,7 @@ async function confirmImport(): Promise<void> {
   try {
     await replaceEntries(pendingImport);
     entries = await getEntries(); pendingImport = null;
-    closeDialog('import-dialog'); render(); announce(`${count} observations imported.`);
+    closeDialog('import-dialog'); render(); announce(`${count} sources imported.`);
   } catch (cause) { announce(cause instanceof Error ? cause.message : 'The import could not be saved.'); }
 }
 
@@ -314,13 +379,13 @@ function showOfflineState(): void {
   } else bar?.remove();
 }
 
-window.addEventListener('popstate', render);
+window.addEventListener('popstate', () => { void loadEntriesForRoute().then(render); });
 window.addEventListener('online', showOfflineState);
 window.addEventListener('offline', showOfflineState);
 
 async function start(): Promise<void> {
-  try { entries = await getEntries(); }
-  catch (cause) { app.innerHTML = shell(`<section class="fatal"><h1>Your field log could not open.</h1><p>${escapeHtml(cause instanceof Error ? cause.message : 'Browser storage is unavailable.')}</p><button class="button primary" onclick="location.reload()">Reload the app</button></section>`); return; }
+  try { await loadEntriesForRoute(); }
+  catch (cause) { app.innerHTML = shell(`<section class="fatal"><h1>Your input log could not open</h1><p>${escapeHtml(cause instanceof Error ? cause.message : 'Browser storage is unavailable.')}</p><button class="button primary" data-reload>Reload the app</button></section>`); bindEvents(); return; }
   render(); showOfflineState();
   if ('serviceWorker' in navigator) {
     try {
@@ -335,10 +400,19 @@ async function start(): Promise<void> {
   }
 }
 
+async function loadEntriesForRoute(): Promise<void> {
+  setStorageNamespace(isDemo() ? 'demo' : 'real');
+  entries = await getEntries();
+  if (isDemo() && entries.length === 0) {
+    await replaceEntries(freshDemoEntries());
+    entries = await getEntries();
+  }
+}
+
 function showUpdateToast(worker: ServiceWorker): void {
   const toast = document.createElement('div');
   toast.className = 'update-toast'; toast.setAttribute('role', 'status');
-  toast.innerHTML = '<span>A fresh field guide is ready.</span><button>Update now</button>';
+  toast.innerHTML = '<span>An app update is ready.</span><button>Update now</button>';
   toast.querySelector('button')!.addEventListener('click', () => worker.postMessage({ type: 'SKIP_WAITING' }));
   document.body.append(toast);
   navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });

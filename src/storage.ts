@@ -1,12 +1,26 @@
 import type { ExportFile, LogEntry } from './types';
 
-const DB_NAME = 'comprehensible-input-log';
+const REAL_DB_NAME = 'comprehensible-input-log';
+const DEMO_DB_NAME = 'demo:comprehensible-input-log';
 const STORE = 'entries';
 const VERSION = 1;
+let databaseName = REAL_DB_NAME;
+
+/**
+ * Demo storage is deliberately a different IndexedDB database. Switching back
+ * to the real app therefore cannot read or overwrite a visitor's real log.
+ */
+export function setStorageNamespace(namespace: 'real' | 'demo'): void {
+  databaseName = namespace === 'demo' ? DEMO_DB_NAME : REAL_DB_NAME;
+}
+
+export function currentStorageNamespace(): 'real' | 'demo' {
+  return databaseName === DEMO_DB_NAME ? 'demo' : 'real';
+}
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, VERSION);
+    const request = indexedDB.open(databaseName, VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
@@ -65,9 +79,19 @@ export function validateImport(value: unknown): ExportFile {
       !sourceTypes.includes(entry.sourceType) || !Number.isInteger(entry.amount) || entry.amount < 1 || entry.amount > 10000 ||
       !['minutes', 'pages'].includes(entry.amountUnit) || !Number.isInteger(entry.comprehension) || entry.comprehension < 1 || entry.comprehension > 5 ||
       !Array.isArray(entry.words) || entry.words.length > 3 || entry.words.some(word => typeof word !== 'string') || !['finished', 'stopped'].includes(entry.status) ||
-      typeof entry.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date) || typeof entry.notes !== 'string' || typeof entry.createdAt !== 'string' || typeof entry.updatedAt !== 'string') {
+      typeof entry.date !== 'string' || !isValidEntryDate(entry.date) || typeof entry.notes !== 'string' || typeof entry.createdAt !== 'string' || typeof entry.updatedAt !== 'string') {
       throw new Error('One or more observations in that file are incomplete or invalid.');
     }
   }
   return candidate as ExportFile;
+}
+
+/** Reject impossible calendar dates and dates after today before an import can replace data. */
+export function isValidEntryDate(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+  const [, year, month, day] = match;
+  const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  if (date.getUTCFullYear() !== Number(year) || date.getUTCMonth() !== Number(month) - 1 || date.getUTCDate() !== Number(day)) return false;
+  return value <= new Date().toISOString().slice(0, 10);
 }

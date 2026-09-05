@@ -1,4 +1,4 @@
-const VERSION = 'input-log-v1.0.3';
+const VERSION = 'input-log-v1.1.0';
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const PRECACHE = ['/', '/index.html', '/offline.html', '/manifest.webmanifest', '/assets/icon.svg', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/field-notes-hero-640.webp'];
