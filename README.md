@@ -52,7 +52,7 @@ node -e "const c=require('./.factory/claims.json'); for (const x of c) console.l
 
 Copy each printed command into the shell. The browser tests use Playwright 1.58.2. Run `npx playwright install chromium` if Chromium is missing outside the factory worker.
 
-The deployment build command is `npm run build`. Publish `dist/` as a static site. [`staticwebapp.config.json`](staticwebapp.config.json) provides the SPA fallback, a designed 404 response, MIME type, cache policy, and response headers for Static Web Apps.
+The deployment build command is `npm run build`. Publish `dist/` as a static site. [`staticwebapp.config.json`](staticwebapp.config.json) provides explicit SPA route rewrites, a designed 404 response, MIME type, cache policy, and response headers for Static Web Apps.
 
 ## Data and privacy
 

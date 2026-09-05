@@ -1,8 +1,4 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/404.html", "/offline.html", "/manifest.webmanifest", "/sw.js", "/robots.txt", "/sitemap.xml"]
-  },
   "globalHeaders": {
     "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
     "Permissions-Policy": "accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()",
@@ -13,6 +9,9 @@
     ".webmanifest": "application/manifest+json"
   },
   "routes": [
+    { "route": "/demo", "rewrite": "/index.html" },
+    { "route": "/privacy", "rewrite": "/index.html" },
+    { "route": "/terms", "rewrite": "/index.html" },
     { "route": "/assets/*", "headers": { "Cache-Control": "public, max-age=604800" } },
     { "route": "/sw.js", "headers": { "Cache-Control": "no-cache" } }
   ],
